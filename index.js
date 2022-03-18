@@ -13,6 +13,10 @@ const campgrounds = require("./routes/campgrounds");
 const reviews = require("./routes/reviews");
 const session = require("express-session");
 const flash = require("connect-flash");
+const passport = require("passport");
+const strategyLocal = require("passport-local");
+const User = require("./models/user");
+const authRoutes = require("./routes/auth");
 
 // const {
 //     campgroundValidationSchema,
@@ -52,12 +56,22 @@ app.use(session(sessionConfig));
 
 app.use(flash());
 
+//passport related
+app.use(passport.initialize());
+app.use(passport.session()); // session must be used before passport
+passport.use(new strategyLocal(User.authenticate()));
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+
 app.use((req, res, next) => {
+    console.log(req.session);
+    res.locals.currentUser = req.user;
     res.locals.success = req.flash("success");
     res.locals.error = req.flash("error");
     next();
 });
 
+app.use("/", authRoutes);
 app.use("/campgrounds", campgrounds);
 app.use("/campgrounds/:id/reviews", reviews);
 

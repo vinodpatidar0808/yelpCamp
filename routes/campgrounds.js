@@ -4,6 +4,7 @@ const asyncError = require("../utilities/asyncError");
 const expressError = require("../utilities/ExpressError");
 const Campground = require("../models/campground");
 const { campgroundValidationSchema } = require("../validationSchemas.js");
+const { isLoggedIn } = require("../middleware");
 
 router.get(
     "/",
@@ -14,7 +15,7 @@ router.get(
 );
 
 // order of routes matter, if /campground/new was after campgrounds/:id , this new string in request will be treated as id
-router.get("/new", (req, res) => {
+router.get("/new", isLoggedIn, (req, res) => {
     res.render("campgrounds/new");
 });
 
@@ -31,6 +32,7 @@ const validateCampground = (req, res, next) => {
 
 router.post(
     "/",
+    isLoggedIn,
     validateCampground,
     asyncError(async (req, res, next) => {
         // if (!req.body.campground)
@@ -60,6 +62,7 @@ router.get(
 
 router.get(
     "/:id/edit",
+    isLoggedIn,
     asyncError(async (req, res) => {
         const campground = await Campground.findById(req.params.id);
         res.render("campgrounds/edit", { campground });
@@ -68,6 +71,7 @@ router.get(
 
 router.patch(
     "/:id",
+    isLoggedIn,
     validateCampground,
     asyncError(async (req, res) => {
         const { id } = req.params;
@@ -82,6 +86,7 @@ router.patch(
 
 router.delete(
     "/:id",
+    isLoggedIn,
     asyncError(async (req, res) => {
         const { id } = req.params;
         await Campground.findByIdAndDelete(id);
