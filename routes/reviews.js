@@ -8,24 +8,18 @@ const Campground = require("../models/campground");
 const asyncError = require("../utilities/asyncError");
 const expressError = require("../utilities/ExpressError");
 
-const { reviewValidationSchema } = require("../validationSchemas.js");
+// const { reviewValidationSchema } = require("../validationSchemas.js");
 
-const validateReview = (req, res, next) => {
-    const { error } = reviewValidationSchema.validate(req.body);
-    if (error) {
-        const msg = error.details.map((el) => el.message).join(",");
-        throw new expressError(msg, 400);
-    } else {
-        next();
-    }
-};
+const { validateReview, isLoggedIn, isReviewOwner } = require("../middleware");
 
 router.post(
     "/",
+    isLoggedIn,
     validateReview,
     asyncError(async (req, res) => {
         const campground = await Campground.findById(req.params.id);
         const review = new Review(req.body.review);
+        review.owner = req.user._id;
         campground.reviews.push(review);
         await review.save();
         await campground.save();
@@ -36,6 +30,8 @@ router.post(
 
 router.delete(
     "/:reviewId",
+    isLoggedIn,
+    isReviewOwner,
     asyncError(async (req, res) => {
         //pull operator of mongo to delete review from campground
         const { id, reviewId } = req.params;
