@@ -1,20 +1,23 @@
 <% layout('layouts/boilerplate')%>
 <link rel="stylesheet" href="/styles/stars.css" />
+
 <div class="row">
     <div class="col-6">
+        <div id="map" style="width: 100%; height: 300px"></div>
+
         <div
             id="campgroundCarousal"
             class="carousel slide"
             data-bs-ride="carousel"
         >
             <div class="carousel-inner">
-                <% campground.images.forEach((img, i) => { %>
+                <% campground.images.forEach((img, i)=> { %>
                 <div class="carousel-item <%= i===0 ? 'active' : ''%>">
                     <img src="<%= img.url%>" class="d-block w-100" alt="" />
                 </div>
                 <% }) %>
             </div>
-            <% if(campground.images.length > 1) {%>
+            <% if(campground.images.length> 1) {%>
             <button
                 class="carousel-control-prev"
                 type="button"
@@ -179,3 +182,9 @@
         <%}%>
     </div>
 </div>
+
+<script>
+    const mbxToken = "<%-process.env.MAPBOX_TOKEN%>";
+    const campground = <%- JSON.stringify(campground)%>
+</script>
+<script src="/js/showMap.js"></script>
