@@ -1,11 +1,16 @@
 mapboxgl.accessToken = mbxToken;
 const map = new mapboxgl.Map({
-    container: "map",
+    container: "cluster-map",
     style: "mapbox://styles/mapbox/light-v10",
     center: [-103.59179687498357, 40.66995747013945],
     // center: [75.857727, 22.719568], // centered around indore, india
     zoom: 3,
 });
+
+const nav = new mapboxgl.NavigationControl({
+    visualizePitch: true,
+});
+map.addControl(nav);
 
 map.on("load", () => {
     // Add a new source from our GeoJSON data and
