@@ -7,7 +7,7 @@ const ImageSchema = new Schema({ url: String, filename: String });
 const opts = { toJSON: { virtuals: true } };
 
 ImageSchema.virtual("thumbnail").get(function () {
-    return this.url.replace("/upload", "/upload/w_500");
+    return this.url.replace("/upload", "/upload/w_500,h_300,ar_1.0");
 });
 
 const CampgroundSchema = new Schema(

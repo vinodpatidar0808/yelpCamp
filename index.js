@@ -2,8 +2,6 @@ if (process.env.NODE_ENV !== "production") {
     require("dotenv").config();
 }
 
-
-
 const express = require("express");
 const app = express();
 const ejs = require("ejs");
@@ -23,12 +21,15 @@ const passport = require("passport");
 const strategyLocal = require("passport-local");
 const User = require("./models/user");
 const authRoutes = require("./routes/auth");
+const mongoSanitize = require("express-mongo-sanitize");
+const helmet = require("helmet");
 
 // const {
 //     campgroundValidationSchema,
 //     reviewValidationSchema,
 // } = require("./validationSchemas.js");
-
+const dbUrl = process.env.DB_URL;
+// "mongodb://localhost:27017/yelp-camp"
 mongoose.connect("mongodb://localhost:27017/yelp-camp", {
     useNewUrlParser: true,
     useUnifiedTopology: true,
@@ -47,20 +48,76 @@ app.set("views", path.join(__dirname, "views"));
 app.use(methodOverride("_method"));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
+app.use(mongoSanitize());
 
 const sessionConfig = {
+    name: "session",
     secret: "this is secret",
     resave: false,
     saveUninitialized: true,
     cookie: {
         httpOnly: true, // true by default also
+        // secure: true,
         expires: Date.now + 1000 * 60 * 60 * 24 * 7,
         maxAge: 1000 * 60 * 60 * 24 * 7,
     },
 };
-app.use(session(sessionConfig));
 
+app.use(session(sessionConfig));
 app.use(flash());
+app.use(helmet());
+const scriptSrcUrls = [
+    // "https://stackpath.bootstrapcdn.com/",
+    "https://api.tiles.mapbox.com/",
+    "https://api.mapbox.com/",
+    "https://kit.fontawesome.com/",
+    "https://cdnjs.cloudflare.com/",
+    "https://cdn.jsdelivr.net/",
+    "https://res.cloudinary.com/drhz5bs1x/",
+];
+const styleSrcUrls = [
+    "https://kit-free.fontawesome.com/",
+    // "https://stackpath.bootstrapcdn.com/",
+    "https://api.mapbox.com/",
+    "https://api.tiles.mapbox.com/",
+    "https://fonts.googleapis.com/",
+    "https://use.fontawesome.com/",
+    "https://cdn.jsdelivr.net/",
+    "https://res.cloudinary.com/drhz5bs1x/",
+];
+const connectSrcUrls = [
+    "https://*.tiles.mapbox.com",
+    "https://api.mapbox.com",
+    "https://events.mapbox.com",
+    "https://res.cloudinary.com/drhz5bs1x/",
+];
+const fontSrcUrls = ["https://res.cloudinary.com/drhz5bs1x/"];
+
+app.use(
+    helmet({
+        contentSecurityPolicy: {
+            directives: {
+                defaultSrc: [],
+                connectSrc: ["'self'", ...connectSrcUrls],
+                scriptSrc: ["'unsafe-inline'", "'self'", ...scriptSrcUrls],
+                styleSrc: ["'self'", "'unsafe-inline'", ...styleSrcUrls],
+                workerSrc: ["'self'", "blob:"],
+                objectSrc: [],
+                imgSrc: [
+                    "'self'",
+                    "blob:",
+                    "data:",
+                    "https://res.cloudinary.com/drhz5bs1x/", //SHOULD MATCH YOUR CLOUDINARY ACCOUNT!
+                    "https://images.unsplash.com/",
+                ],
+                fontSrc: ["'self'", ...fontSrcUrls],
+                mediaSrc: ["https://res.cloudinary.com/drhz5bs1x/"],
+                childSrc: ["blob:"],
+            },
+        },
+        crossOriginEmbedderPolicy: false,
+    })
+);
 
 //passport related
 app.use(passport.initialize());
@@ -70,7 +127,7 @@ passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
 app.use((req, res, next) => {
-    // console.log(req.session);
+    // console.log(req.query);
     res.locals.currentUser = req.user;
     res.locals.success = req.flash("success");
     res.locals.error = req.flash("error");
