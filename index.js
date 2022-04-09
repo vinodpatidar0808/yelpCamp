@@ -23,14 +23,15 @@ const User = require("./models/user");
 const authRoutes = require("./routes/auth");
 const mongoSanitize = require("express-mongo-sanitize");
 const helmet = require("helmet");
+const MongoStore = require("connect-mongo");
 
 // const {
 //     campgroundValidationSchema,
 //     reviewValidationSchema,
 // } = require("./validationSchemas.js");
-const dbUrl = process.env.DB_URL;
-// "mongodb://localhost:27017/yelp-camp"
-mongoose.connect("mongodb://localhost:27017/yelp-camp", {
+// const dbUrl = process.env.DB_URL;
+const dbUrl = "mongodb://localhost:27017/yelp-camp";
+mongoose.connect(dbUrl, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
 });
@@ -50,7 +51,20 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
 app.use(mongoSanitize());
 
+const store = MongoStore.create({
+    mongoUrl: dbUrl,
+    touchAfter: 24 * 60 * 60,
+    crypto: {
+        secret: "this is a secret",
+    },
+});
+
+store.on("error", function (e) {
+    console.log("session store error", e);
+});
+
 const sessionConfig = {
+    store,
     name: "session",
     secret: "this is secret",
     resave: false,
@@ -127,7 +141,6 @@ passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
 app.use((req, res, next) => {
-    // console.log(req.query);
     res.locals.currentUser = req.user;
     res.locals.success = req.flash("success");
     res.locals.error = req.flash("error");

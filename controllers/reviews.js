@@ -4,8 +4,13 @@ const Review = require("../models/review");
 module.exports.createReview = async (req, res) => {
     const campground = await Campground.findById(req.params.id);
     const review = new Review(req.body.review);
+    const now = new Date();
+    review.date = new Intl.DateTimeFormat("en-IN", {
+        dateStyle: "short",
+        timeStyle: "medium",
+    }).format(now);
     review.owner = req.user._id;
-    campground.reviews.push(review);
+    campground.reviews.unshift(review);
     await review.save();
     await campground.save();
     req.flash("success", "Created New review");

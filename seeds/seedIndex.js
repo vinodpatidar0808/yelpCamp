@@ -12,7 +12,7 @@ const cities = require("./cities");
 // const descriptors = require('./seedHelpers');
 // const places = require('./seedHelpers');
 // using destructuring to get both at once
-const { descriptors, places } = require("./seedHelpers");
+const { descriptors, places, seedImages } = require("./seedHelpers");
 
 mongoose.connect("mongodb://localhost:27017/yelp-camp", {
     useNewUrlParser: true,
@@ -33,9 +33,11 @@ const seedDB = async () => {
     for (let i = 0; i < 400; i++) {
         const price = Math.floor(Math.random() * 25) + 10;
         const random1000 = Math.floor(Math.random() * 1000);
+        const rand52 = Math.floor(Math.random() * 52);
+        const rand52_ = Math.floor(Math.random() * 52);
         const camp = new Campground({
             // owner: "6235c68fd1c118f3b645af9f",
-            owner: "62456edfd285be293069a33c",
+            owner: "62508abd70b39b209ea73bac",
             location: `${cities[random1000].city}, ${cities[random1000].state}`,
             title: `${sample(descriptors)} ${sample(places)}`,
             description:
@@ -50,12 +52,12 @@ const seedDB = async () => {
             },
             images: [
                 {
-                    url: "https://res.cloudinary.com/drhz5bs1x/image/upload/v1648905202/yelpcamp/rccelpnxbrclf6qq8xa2.jpg",
-                    filename: "yelpcamp/rccelpnxbrclf6qq8xa2",
+                    url: seedImages[rand52].u,
+                    filename: seedImages[rand52].fname,
                 },
                 {
-                    url: "https://res.cloudinary.com/drhz5bs1x/image/upload/v1647879977/yelpcamp/pkoifi4b62anvcct1meh.jpg",
-                    filename: "yelpcamp/pkoifi4b62anvcct1meh",
+                    url: seedImages[rand52_].u,
+                    filename: seedImages[rand52_].fname,
                 },
             ],
         });

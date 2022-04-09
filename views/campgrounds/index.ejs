@@ -1,39 +1,64 @@
 <% layout('layouts/boilerplate')%>
 <div id="cluster-map"></div>
-<h1>All campgrounds</h1>
+<h1 class="text-center my-5">All campgrounds</h1>
 
-<% for (let campground of campgrounds) {%>
-<div class="card mb-3">
+<div class="container">
     <div class="row">
-        <div class="col-md-4">
-            <% if(campground.images.length) {%>
-            <img src="<%=campground.images[0].url%>" alt="" class="img-fluid" />
-            <% }else{ %>
-            <img
-                class="img-fluid"
-                src="https://res.cloudinary.com/drhz5bs1x/image/upload/v1647879977/yelpcamp/pkoifi4b62anvcct1meh.jpg"
-                alt=""
-            />
-            <% } %>
-        </div>
-        <div class="col-md-8">
-            <div class="card-body">
-                <h5 class="card-title"><%= campground.title%></h5>
-                <p class="card-text"><%= campground.description%></p>
-                <p class="card-text">
-                    <small class="text-muted"> <%=campground.location%> </small>
-                </p>
-                <a
-                    href="/campgrounds/<%=campground._id%>"
-                    class="btn btn-primary"
-                >
-                    view <%= campground.title%></a
-                >
+        <% for(let i=campgrounds.length-1;i>=0;i--){ %>
+        <div class="col mb-3">
+            <div class="card shadow-sm" style="width: 20rem; max-height: 39rem">
+                <% if(campgrounds[i].images.length) {%>
+                <img
+                    src="<%=campgrounds[i].images[0].url%>"
+                    class="card-img-top"
+                    alt="campground-image"
+                    style="height: 18rem"
+                />
+                <% } else{ %>
+                <img
+                    class="img-fluid"
+                    src="https://res.cloudinary.com/drhz5bs1x/image/upload/v1647879977/yelpcamp/pkoifi4b62anvcct1meh.jpg"
+                    alt="campground-image"
+                    style="height: 18rem"
+                />
+                <% } %>
+                <div class="card-body">
+                    <h5 class="card-title"><%= campgrounds[i].title%></h5>
+                    <p class="card-text">
+                        <small class="text-muted">
+                            <%=campgrounds[i].location%>
+                        </small>
+                    </p>
+                    <p>
+                        <button
+                            class="btn btn-secondary"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#collapseExample-<%=i%>"
+                            aria-expanded="false"
+                            aria-controls="collapseExample-<%=i%>"
+                        >
+                            Description
+                        </button>
+                    </p>
+                    <div class="collapse mb-2" id="collapseExample-<%=i%>">
+                        <p class="card-text">
+                            <%= campgrounds[i].description%>
+                        </p>
+                    </div>
+
+                    <a
+                        href="/campgrounds/<%=campgrounds[i]._id%>"
+                        class="btn btn-primary"
+                    >
+                        View Campground</a
+                    >
+                </div>
             </div>
         </div>
+        <% } %>
     </div>
 </div>
-<%}%>
 
 <script>
     const mbxToken = "<%-process.env.MAPBOX_TOKEN%>";

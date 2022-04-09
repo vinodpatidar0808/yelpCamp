@@ -26,7 +26,6 @@ module.exports.validateCampground = (req, res, next) => {
     } else {
         next();
     }
-    // console.log(result);
 };
 
 module.exports.isOwner = async (req, res, next) => {
