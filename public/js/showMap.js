@@ -12,7 +12,7 @@ const nav = new mapboxgl.NavigationControl({
 });
 map.addControl(nav, "top-right");
 
-new mapboxgl.Marker()
+new mapboxgl.Marker({ color: "#b40219" })
     .setLngLat(campground.geometry.coordinates)
     .setPopup(
         new mapboxgl.Popup({ offset: 35 }).setHTML(

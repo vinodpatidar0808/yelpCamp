@@ -5,7 +5,6 @@ const multer = require("multer");
 const { storage } = require("../cloudinary/config");
 const upload = multer({ storage });
 
-const Campground = require("../models/campground");
 const { isLoggedIn, validateCampground, isOwner } = require("../middleware");
 const campgrounds = require("../controllers/campgrounds");
 
@@ -18,10 +17,6 @@ router
         validateCampground,
         asyncError(campgrounds.createCampground)
     );
-// .post(upload.array("image"), (req, res) => {
-//     console.log(req.body, req.files);
-//     res.send("it worked");
-// });
 
 // order of routes matter, if /campground/new was after campgrounds/:id , this new string in request will be treated as id
 router.get("/new", isLoggedIn, campgrounds.renderNewForm);

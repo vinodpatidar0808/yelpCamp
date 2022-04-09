@@ -4,15 +4,11 @@ if (process.env.NODE_ENV !== "production") {
 
 const express = require("express");
 const app = express();
-const ejs = require("ejs");
 const path = require("path");
 const mongoose = require("mongoose");
-// const Campground = require("./models/campground");
 const methodOverride = require("method-override");
 const engine = require("ejs-mate");
-const asyncError = require("./utilities/asyncError");
 const expressError = require("./utilities/ExpressError");
-// const Review = require("./models/review");
 const campgrounds = require("./routes/campgrounds");
 const reviews = require("./routes/reviews");
 const session = require("express-session");
@@ -24,11 +20,8 @@ const authRoutes = require("./routes/auth");
 const mongoSanitize = require("express-mongo-sanitize");
 const helmet = require("helmet");
 const MongoStore = require("connect-mongo");
+const port = process.env.PORT || 3000;
 
-// const {
-//     campgroundValidationSchema,
-//     reviewValidationSchema,
-// } = require("./validationSchemas.js");
 // const dbUrl = process.env.DB_URL;
 const dbUrl = "mongodb://localhost:27017/yelp-camp";
 mongoose.connect(dbUrl, {
@@ -51,11 +44,13 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
 app.use(mongoSanitize());
 
+const secret = process.env.SECRET || "this is a secret";
+
 const store = MongoStore.create({
     mongoUrl: dbUrl,
     touchAfter: 24 * 60 * 60,
     crypto: {
-        secret: "this is a secret",
+        secret: secret,
     },
 });
 
@@ -66,7 +61,7 @@ store.on("error", function (e) {
 const sessionConfig = {
     store,
     name: "session",
-    secret: "this is secret",
+    secret,
     resave: false,
     saveUninitialized: true,
     cookie: {
@@ -81,7 +76,6 @@ app.use(session(sessionConfig));
 app.use(flash());
 app.use(helmet());
 const scriptSrcUrls = [
-    // "https://stackpath.bootstrapcdn.com/",
     "https://api.tiles.mapbox.com/",
     "https://api.mapbox.com/",
     "https://kit.fontawesome.com/",
@@ -91,7 +85,6 @@ const scriptSrcUrls = [
 ];
 const styleSrcUrls = [
     "https://kit-free.fontawesome.com/",
-    // "https://stackpath.bootstrapcdn.com/",
     "https://api.mapbox.com/",
     "https://api.tiles.mapbox.com/",
     "https://fonts.googleapis.com/",
@@ -166,6 +159,6 @@ app.use((err, req, res, next) => {
     res.render("error", { err });
 });
 
-app.listen(3000, () => {
-    console.log("serving on port 3000");
+app.listen(port, () => {
+    console.log(`Serving on port ${port}`);
 });

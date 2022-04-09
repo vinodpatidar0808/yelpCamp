@@ -4,7 +4,7 @@ module.exports.renderRegister = (req, res) => {
     res.render("users/register");
 };
 
-module.exports.registerUser = async (req, res) => {
+module.exports.registerUser = async (req, res, next) => {
     try {
         const { email, username, password } = req.body;
         const newUser = new User({ email, username });
@@ -12,7 +12,7 @@ module.exports.registerUser = async (req, res) => {
         // automatically login user after registering
         req.login(registeredUser, (err) => {
             if (err) return next(err);
-            req.flash("Welcome to Yelp Camp");
+            req.flash("success", "Welcome to Yelp Camp");
             res.redirect("/campgrounds");
         });
     } catch (e) {
